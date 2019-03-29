@@ -1,6 +1,9 @@
 package com.github.mpawlucz.coineal;
 
+import com.github.mpawlucz.coineal.domain.request.TradeRequest;
 import com.github.mpawlucz.coineal.domain.response.BalanceResponse;
+import com.github.mpawlucz.coineal.domain.response.GetOpenOrdersResponse;
+import com.github.mpawlucz.coineal.domain.response.TradeResponse;
 import com.github.mpawlucz.coineal.rest.RestClient;
 import com.github.mpawlucz.coineal.sign.ApiKey;
 import com.github.mpawlucz.coineal.sign.Hmac;
@@ -48,8 +51,52 @@ public class CoinealApi {
                 "https://exchange-open-api.coineal.com/open/api/user/account",
                 new HashMap<>()
         );
-//        System.out.println(responseText);
         final BalanceResponse response = gson.fromJson(responseText, BALANCE_TYPE_TOKEN);
+        return response;
+    }
+
+    public TradeResponse trade(TradeRequest trade) throws IOException {
+        final HashMap<String, String> params = new HashMap<>();
+        params.put("side", trade.getIsBuy() ? BUY : SELL);
+        params.put("type", LIMIT_ORDER_TYPE);
+        params.put("volume", formatSatoshi(trade.getVolume()));
+        params.put("price", formatSatoshi(trade.getPrice()));
+        params.put("symbol", trade.getBase().toLowerCase() + trade.getQuote().toLowerCase());
+
+        final String responseText = authorizedPost(
+                "https://exchange-open-api.coineal.com/open/api/create_order",
+                params
+        );
+
+        Type typeToken = new TypeToken<TradeResponse>() {}.getType();
+        final TradeResponse response = gson.fromJson(responseText, typeToken);
+        return response;
+    }
+
+    public GetOpenOrdersResponse getOpenOrders(String base, String quote) throws IOException {
+        final HashMap<String, String> additionalParams = new HashMap<>();
+        additionalParams.put("symbol", base.toLowerCase() + quote.toLowerCase());
+        final String responseText = authorizedGet(
+                "https://exchange-open-api.coineal.com/open/api/new_order",
+                additionalParams
+        );
+        Type typeToken = new TypeToken<GetOpenOrdersResponse>() {}.getType();
+        final GetOpenOrdersResponse response = gson.fromJson(responseText, typeToken);
+        return response;
+    }
+
+    public TradeResponse cancel(Long orderId, String base, String quote) throws IOException {
+        final HashMap<String, String> params = new HashMap<>();
+        params.put("order_id", ""+orderId);
+        params.put("symbol", base.toLowerCase() + quote.toLowerCase());
+
+        final String responseText = authorizedPost(
+                "https://exchange-open-api.coineal.com/open/api/cancel_order",
+                params
+        );
+
+        Type typeToken = new TypeToken<TradeResponse>() {}.getType();
+        final TradeResponse response = gson.fromJson(responseText, typeToken);
         return response;
     }
 
