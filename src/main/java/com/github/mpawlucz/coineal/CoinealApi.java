@@ -110,21 +110,14 @@ public class CoinealApi {
                 .collect(Collectors.joining(""))
                 + apiKey.getSecret();
 
-//        System.out.println("signString: " + signString);
-        final String sign = Hmac.calculateMd5(signString);
-//        System.out.println("sign: " + sign);
-
-        params.put("sign", sign);
+        params.put("sign", Hmac.calculateMd5(signString));
 
         final String getParams = params.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining("&"));
 
-        final String finalUrl = url + "?" + getParams;
-//        System.out.println(finalUrl);
-
-        return restClient.get(finalUrl);
+        return restClient.get(url + "?" + getParams);
     }
 
     private String authorizedPost(String url, HashMap<String, String> additionalParams) throws IOException {
@@ -137,11 +130,7 @@ public class CoinealApi {
                 .collect(Collectors.joining(""))
                 + apiKey.getSecret();
 
-//        System.out.println("signString: " + signString);
-        final String sign = Hmac.calculateMd5(signString);
-//        System.out.println("sign: " + sign);
-
-        params.put("sign", sign);
+        params.put("sign", Hmac.calculateMd5(signString));
 
         final List<NameValuePair> postParams = params.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
