@@ -19,12 +19,30 @@ coineal-java-api is a lightweight Java library for interacting with the [Coineal
 ```
 
 ## Example
+
+### getBalance
 ```
 CoinealApi api = new CoinealApi(ApiKey.builder()
-                .key("<YOUR-API-KEY>")
-                .secret("<YOUR-API-SECRET>")
-                .build()
+    .key("<YOUR-API-KEY>")
+    .secret("<YOUR-API-SECRET>")
+    .build()
 );
 BalanceResponse balance = api.getBalance();
 BigDecimal summaryBtc = balance.getData().getSummaryBtc();
+```
+
+### createOrder
+```
+final TradeResponse trade = api.trade(TradeRequest.builder()
+    .base("ETH")
+    .quote("BTC")
+    .volume(new BigDecimal("0.01"))
+    .price(new BigDecimal("0.01"))
+    .isBuy(true)
+    .build()
+);
+if (!trade.isSuccess()){
+    throw new RuntimeException("Create order failed: " + trade.getMsg());
+}
+System.out.println(trade.getData().getOrderId());
 ```
