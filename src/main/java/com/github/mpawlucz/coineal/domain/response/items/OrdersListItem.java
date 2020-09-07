@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class OrdersListItem {
 
     @SerializedName("id")
-    private Long id; // this is actually orderId
+    private Long id;
 
     @SerializedName("side")
     private String side;
